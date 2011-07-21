@@ -1,0 +1,50 @@
+startup_message off
+vbell off
+defscrollback 10000
+altscreen on
+
+bind c screen 1
+bind 0 select 10
+#screen 1
+
+screen -t "api" 1
+stuff "clear\012"
+stuff "sudo /home/trey/nova/nova/bin/nova-api --flagfile=/home/trey/nova/nova.conf\012"
+screen -t "objectstore" 2
+stuff "clear\012"
+stuff "sudo /home/trey/nova/nova/bin/nova-objectstore --flagfile=/home/trey/nova/nova.conf\012"
+screen -t "compute" 3
+stuff "clear\012"
+stuff "sudo /home/trey/nova/nova/bin/nova-compute --flagfile=/home/trey/nova/nova.conf\012"
+screen -t "network" 4
+stuff "clear\012"
+stuff "sudo /home/trey/nova/nova/bin/nova-network --flagfile=/home/trey/nova/nova.conf\012"
+screen -t "scheduler" 5
+stuff "clear\012"
+stuff "sudo /home/trey/nova/nova/bin/nova-scheduler --flagfile=/home/trey/nova/nova.conf\012"
+screen -t "glance api" 6
+stuff "clear\012"
+stuff "sudo glance-control api start /home/trey/nova/glance-api.conf\012"
+screen -t "glance-registry" 7
+stuff "clear\012"
+stuff "sudo glance-control registry start /home/trey/nova/glance-registry.conf\012"
+screen -t "test" 8
+stuff "clear\012"
+stuff ". /home/trey/nova/novarc\012"
+stuff "euca-add-keypair nova_key > nova_key.priv\012"
+stuff "nova image-list\012"
+stuff "nova flavor-list\012"
+stuff "nova list\012"
+stuff "nova boot t1 --flavor=1 --image="
+screen -t "db" 9
+stuff "clear\012"
+stuff "mysql -uroot -pnova\012"
+stuff "use nova\012"
+
+#caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-= ${CURRENT_SLICEHOST_APP}@%H - %LD %d %LM - %c"
+#caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w"
+#caption always '%{= kg}%-w%{= r}%n %t%{-}%+w %-=%{g}(%{d}%H/%l%{g})'
+caption always '%{= g}%-w%{= r}%n %t%{-}%+w %-=%{g}(%{d}%H/%l%{g})'
+
+select 8
+

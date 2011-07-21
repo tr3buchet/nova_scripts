@@ -1,0 +1,20 @@
+There are two scripts here which I use to launch and teardown nova
+They both require some small tweaks for your system
+You'll need to make sure your directory structure is setup correctly
+your nova code should be in a directory called nova underneath the directory n3va.sh is in
+I use symlinks to swap that code in and out easily
+
+then it's
+n3va.sh run       -> runs nova in a screen session
+n3va.sh clean     -> clean up the screen session and kills the running processes
+n3va.sh teardown  -> wipes database, clobbers the xenserver instances
+
+place the clobber script on your xenserver dom0 and n3va.sh will call it
+or
+run script manually to shutdown and uninstall all VMs on a xenserver.
+If there are some VMs you would like the script to ignore add them
+to the ignored array in the script (YOU WILL WANT YOUR COMPUTE INSTANCE LISTED HERE)
+
+if you are in a bad state and wish to wipe the xenserver completely
+call the script with WIPE as an argument, ex:
+clobber.sh WIPE
