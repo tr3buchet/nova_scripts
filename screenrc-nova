@@ -9,28 +9,28 @@ bind 0 select 10
 
 screen -t "api" 1
 stuff "clear\012"
-stuff "sudo /home/trey/nova/nova/bin/nova-api --flagfile=/home/trey/nova/nova.conf\012"
+stuff "sudo $NOVA_DIR/bin/nova-api --flagfile=$OPENSTACK/nova.conf\012"
 screen -t "objectstore" 2
 stuff "clear\012"
-stuff "sudo /home/trey/nova/nova/bin/nova-objectstore --flagfile=/home/trey/nova/nova.conf\012"
+stuff "sudo $NOVA_DIR/bin/nova-objectstore --flagfile=$OPENSTACK/nova.conf\012"
 screen -t "compute" 3
 stuff "clear\012"
-stuff "sudo /home/trey/nova/nova/bin/nova-compute --flagfile=/home/trey/nova/nova.conf\012"
+stuff "sudo $NOVA_DIR/bin/nova-compute --flagfile=$OPENSTACK/nova.conf\012"
 screen -t "network" 4
 stuff "clear\012"
-stuff "sudo /home/trey/nova/nova/bin/nova-network --flagfile=/home/trey/nova/nova.conf\012"
+stuff "sudo $NOVA_DIR/bin/nova-network --flagfile=$OPENSTACK/nova.conf\012"
 screen -t "scheduler" 5
 stuff "clear\012"
-stuff "sudo /home/trey/nova/nova/bin/nova-scheduler --flagfile=/home/trey/nova/nova.conf\012"
+stuff "sudo $NOVA_DIR/bin/nova-scheduler --flagfile=$OPENSTACK/nova.conf\012"
 screen -t "glance api" 6
 stuff "clear\012"
-stuff "sudo glance-control api start /home/trey/nova/glance-api.conf\012"
+stuff "sudo glance-control api start $OPENSTACK/glance-api.conf\012"
 screen -t "glance-registry" 7
 stuff "clear\012"
-stuff "sudo glance-control registry start /home/trey/nova/glance-registry.conf\012"
+stuff "sudo glance-control registry start $OPENSTACK/glance-registry.conf\012"
 screen -t "test" 8
 stuff "clear\012"
-stuff ". /home/trey/nova/novarc\012"
+stuff ". $OPENSTACK/novarc\012"
 stuff "euca-add-keypair nova_key > nova_key.priv\012"
 stuff "nova image-list\012"
 stuff "nova flavor-list\012"

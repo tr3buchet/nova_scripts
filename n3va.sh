@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-DIR=/home/trey/nova
+OPENSTACK=$HOME/openstack
+SCREENRC=$HOME/screenrc-nova
+XS_IP=10.127.5.119
 CMD=$1
 SOURCE_BRANCH=lp:nova
 if [ -n "$2" ]; then
     SOURCE_BRANCH=$2
 fi
-DIRNAME=nova
-NOVA_DIR=$DIR/$DIRNAME
-GLANCE_DIR=/home/trey/glance/glance
+
+NOVA_DIR=$OPENSTACK/nova
+GLANCE_DIR=$OPENSTACK/glance
+
 if [ -n "$3" ]; then
-    NOVA_DIR=$DIR/$3
+    NOVA_DIR=$OPENSTACK/$3
 fi
 
 USE_MYSQL=${USE_MYSQL:-1}
@@ -26,19 +29,19 @@ BRIDGE_DEV=eth0
 if [ "$USE_MYSQL" == 1 ]; then
     SQL_CONN=mysql://root:$MYSQL_PASS@localhost
 else
-    SQL_CONN=sqlite:///$DIR/nova.sqlite
+    SQL_CONN=sqlite:///$OPENSTACK/nova.sqlite
 fi
 
 if [ "$CMD" == "run" ]; then
-  echo "3-> writing ./nova.conf"
-  sudo sh -c "cat > nova.conf << EOF
+  echo "3-> writing $OPENSTACK/nova.conf"
+  sudo sh -c "cat > $OPENSTACK/nova.conf << EOF
 --verbose
 --nodaemon
 --sql_connection=$SQL_CONN/nova
 --network_manager=nova.network.manager.$NET_MAN
 --image_service=nova.image.glance.GlanceImageService
 --connection_type=xenapi
---xenapi_connection_url=https://10.127.5.119
+--xenapi_connection_url=https://$XS_IP
 --xenapi_connection_username=root
 --xenapi_connection_password=qwerty
 --rescue-timeout=86400
@@ -89,18 +92,17 @@ if [ "$CMD" == "run" ]; then
 #    bzr pull
 #    sudo python setup.py install
     sudo glance-manage --sql-connection=$SQL_CONN/glance db_sync
-#    cd $DIR
 
 
     if [ ! -d "$NOVA_DIR/images" ]; then
-        ln -s $DIR/images $NOVA_DIR/images
+        ln -s $OPENSTACK/images $NOVA_DIR/images
     fi
 
     if [ "$TEST" == 1 ]; then
         echo "3-> running tests"
         cd $NOVA_DIR
         python $NOVA_DIR/run_tests.py
-        cd $DIR
+        cd $OPENSTACK
     fi
 
     # only create these if nova.zip doesn't exist
@@ -111,24 +113,24 @@ if [ "$CMD" == "run" ]; then
         cd $NOVA_DIR/nova/CA
 
         sudo ./genrootca.sh
-        cd $DIR
+        cd $OPENSTACK
         echo db sync
-        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf db sync
+        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf db sync
         # create an admin user called 'admin'
         echo user
-        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf user admin admin admin
+        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf user admin admin admin
         # create a project called 'admin' with project manager of 'admin'
         echo project
-        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf project create openstack admin
+        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf project create openstack admin
         # export environment variables for project 'admin' and user 'admin'
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf project environment admin admin $NOVA_DIR/novarc
         # create a small network
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create 192.168.0.0/16 1 32 0 0 0 private
         # create a small network 2
         echo networks
-        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create public 10.1.1.0/30 1 4 0 0 0 0 xenbr1
-        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create public 10.10.1.0/30 1 4 0 0 0 0 xenbr1
-        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create private 10.2.0.0/16 1 8 0 0 0 0 xenbr2
+        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf network create public 10.1.1.0/30 1 4 0 0 0 0 xenbr1
+        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf network create public 10.10.1.0/30 1 4 0 0 0 0 xenbr1
+        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf network create private 10.2.0.0/16 1 8 0 0 0 0 xenbr2
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create public 0 xenbr1
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create private 0 xenbr2
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf subnet create 1 10.1.1.0/24
@@ -136,18 +138,22 @@ if [ "$CMD" == "run" ]; then
 
         # create zip file
         echo project zip
-        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf project zip openstack admin
+        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf project zip openstack admin
         # extract/remove zip file
         echo unzip
         unzip -o nova.zip
     fi
+
+    export $NOVA_DIR
+    export $GLANCE_DIR
+    export $OPENSTACK
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
     echo "3-> starting screen"
-    screen -S nova -c ./screenrc-nova
+    screen -S nova -c $SCREENRC
 fi
 
-if [ "$CMD" == "run" ] || [ "$CMD" == "clean" ]; then
+if [ "$CMD" == "clean" ]; then
     echo "3-> kill screen (if running)"
     screen -S nova -X quit
     echo "3-> removing .pids"
@@ -170,5 +176,5 @@ if [ "$CMD" == "teardown" ]; then
     fi
 
     echo "3-> destroying xenserver instances"
-    ssh -lroot n3va-xs /root/clobber.sh
+    ssh root@$XS_IP /root/clobber.sh
 fi
