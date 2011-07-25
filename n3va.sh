@@ -22,7 +22,7 @@ fi
 
 XS_IP=${XS_IP:-127.0.0.1}
 XS_USER=${XS_USER:-root}
-XS_PASS=${XS_PASS:-qwety}
+XS_PASS=${XS_PASS:-qwerty}
 USE_MYSQL=${USE_MYSQL:-1}
 MYSQL_PASS=${MYSQL_PASS:-nova}
 TEST=${TEST:-0}
@@ -51,7 +51,7 @@ if [ "$CMD" == "run" ]; then
 --connection_type=xenapi
 --xenapi_connection_url=https://$XS_IP
 --xenapi_connection_username=$XS_USER
---xenapi_connection_password=$SX_PASS
+--xenapi_connection_password=$XS_PASS
 --rescue-timeout=86400
 --allow_admin_api=true
 --xenapi_inject_image=false
