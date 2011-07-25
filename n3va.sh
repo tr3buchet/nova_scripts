@@ -2,6 +2,11 @@
 OPENSTACK=$HOME/openstack
 SCREENRC=$HOME/screenrc-nova
 XS_IP=10.127.5.119
+
+# $SUDO will blindly be prepended onto commands
+SUDO_CMD=''
+#SUDO_CMD='sudo'
+
 CMD=$1
 SOURCE_BRANCH=lp:nova
 if [ -n "$2" ]; then
@@ -147,6 +152,7 @@ if [ "$CMD" == "run" ]; then
     export $NOVA_DIR
     export $GLANCE_DIR
     export $OPENSTACK
+    export $SUDO_CMD
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
     echo "3-> starting screen"
