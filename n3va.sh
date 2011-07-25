@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 OPENSTACK=$HOME/openstack
 SCREENRC=$HOME/screenrc-nova
-XS_IP=10.127.5.119
+XS_IP=10.6.61.24
 
 # $SUDO will blindly be prepended onto commands
 SUDO_CMD=''
