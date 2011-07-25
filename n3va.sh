@@ -149,10 +149,10 @@ if [ "$CMD" == "run" ]; then
         unzip -o nova.zip
     fi
 
-    export $NOVA_DIR
-    export $GLANCE_DIR
-    export $OPENSTACK
-    export $SUDO_CMD
+    export NOVA_DIR
+    export GLANCE_DIR
+    export OPENSTACK
+    export SUDO_CMD
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
     echo "3-> starting screen"
