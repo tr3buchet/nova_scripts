@@ -182,5 +182,5 @@ if [ "$CMD" == "teardown" ]; then
     fi
 
     echo "3-> destroying xenserver instances"
-    ssh root@$XS_IP /root/clobber.sh
+    ssh root@$XS_IP clobber.sh
 fi
