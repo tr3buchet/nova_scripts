@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 OPENSTACK=$HOME/openstack
 SCREENRC=$HOME/screenrc-nova
-XS_IP=10.6.61.24
 
 # $SUDO will blindly be prepended onto commands
 SUDO_CMD=''
@@ -20,6 +19,10 @@ if [ -n "$3" ]; then
     NOVA_DIR=$OPENSTACK/$3
 fi
 
+
+XS_IP=${XS_IP:-127.0.0.1}
+XS_USER=${XS_USER:-root}
+XS_PASS=${XS_PASS:-qwety}
 USE_MYSQL=${USE_MYSQL:-1}
 MYSQL_PASS=${MYSQL_PASS:-nova}
 TEST=${TEST:-0}
@@ -47,8 +50,8 @@ if [ "$CMD" == "run" ]; then
 --image_service=nova.image.glance.GlanceImageService
 --connection_type=xenapi
 --xenapi_connection_url=https://$XS_IP
---xenapi_connection_username=root
---xenapi_connection_password=qwerty
+--xenapi_connection_username=$XS_USER
+--xenapi_connection_password=$SX_PASS
 --rescue-timeout=86400
 --allow_admin_api=true
 --xenapi_inject_image=false
