@@ -40,14 +40,14 @@ function branch {
     DEST_DIR=nova-trunk
     if [ -n "$2" ]; then
         SOURCE_BRANCH=$2
-        echo "$SOURCE_BRANCH"
-        if [ -n "$3"]; then
+        if [ -n "$3" ]; then
             DEST_DIR=$3
         else
             DEST_DIR=$(echo $2 | cut -d: -f2)
-            DEST_DIR=${STR##*/}
+            DEST_DIR=${DEST_DIR##*/}
         fi
     fi
+    echo "$DEST_DIR"
     if [ -d $OPENSTACK/$DEST_DIR ]; then
         if [ $(basename $OPENSTACK/$DEST_DIR) != $(basename $OPENSTACK) ]
         then
@@ -211,6 +211,12 @@ function teardown {
     echo "3-> destroying xenserver instances"
     ssh root@$XS_IP /root/bin/clobber.sh
 }
+
+function die_in_a_fire {
+    exit
+}
+
+trap die_in_a_fire SIGINT
 
 case "$1" in
     branch)
