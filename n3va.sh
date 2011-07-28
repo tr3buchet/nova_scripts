@@ -47,8 +47,10 @@ function branch {
             DEST_DIR=${STR##*/}
         fi
     fi
-    rm $NOVA_DIR
-    bzr branch $SOURCE_BRANCH $DEST_DIR
+    if [ -d $OPENSTACK/$DEST_DIR ]; then
+        rm -rf $OPENSTACK/$DEST_DIR
+    fi
+    bzr branch $SOURCE_BRANCH $OPENSTACK/$DEST_DIR
     ln -s $NOVA_DIR `cd $OPENSTACK/$DEST_DIR; pwd`
     mkdir -p $NOVA_DIR/instances
     mkdir -p $NOVA_DIR/networks
