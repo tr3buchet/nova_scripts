@@ -48,10 +48,14 @@ function branch {
         fi
     fi
     if [ -d $OPENSTACK/$DEST_DIR ]; then
+        echo "$OPENSTACK/$DEST_DIR exists... removing"
         rm -rf $OPENSTACK/$DEST_DIR
     fi
     bzr branch $SOURCE_BRANCH $OPENSTACK/$DEST_DIR
-    ln -s $NOVA_DIR `cd $OPENSTACK/$DEST_DIR; pwd`
+    if [ -e $NOVA_DIR ]; then
+        rm $NOVA_DIR
+    fi
+    ln -s `cd $OPENSTACK/$DEST_DIR; pwd` $NOVA_DIR
     mkdir -p $NOVA_DIR/instances
     mkdir -p $NOVA_DIR/networks
 }
