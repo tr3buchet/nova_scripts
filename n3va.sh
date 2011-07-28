@@ -2,6 +2,10 @@
 OPENSTACK=$HOME/openstack
 SCREENRC=$HOME/screenrc-nova
 CONFDIR=$OPENSTACK/conf
+OPENBIN=$OPENSTACK/bin
+
+PATH=$OPENBIN:$PATH
+export PATH
 
 # $SUDO will blindly be prepended onto commands
 SUDO_CMD=''
@@ -31,6 +35,9 @@ function branch {
     DEST_DIR=nova-trunk
     if [ -n "$2" ]; then
         SOURCE_BRANCH=$2
+        if [ $SOURCE_BRANCH == "lp:glance" ]; then
+            DEST_DIR=glance-trunk
+        fi
         if [ -n "$3" ]; then
             DEST_DIR=$3
         else
@@ -74,6 +81,36 @@ function install {
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE nova;'
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE glance;'
     fi
+}
+
+function setup {
+  if [! -d "$OPENBIN" ]; then
+      mkdir -p $OPENBIN
+  fi
+}
+
+function setup_glance {
+  if [ ! -d "$CONFDIR/logs" ]; then
+    mkdir -p $CONFDIR/logs
+  fi
+  if [ ! -d "$CONFDIR/image-cache" ]; then
+    mkdir -p $CONFDIR/image-cache
+  fi
+  if [ ! -d "$CONFDIR/images" ]; then
+    mkdir -p $CONFDIR/images
+  fi
+  cp -a $GLANCE_DIR/etc/*.conf $CONFDIR
+  # sed lets you use anything as the separators as long as it follows the
+  # pattern
+  sed -i "s_/var/log/glance_$CONFDIR/logs_" $CONFDIR/glance*.conf
+  sed -i "s_/var/lib/glance_$CONFDIR" $CONFDIR/glance*.conf
+
+  OLD_PWD=$(pwd)
+  cd $GLANCE_DIR
+  python setup.py develop --script-dir $OPENBIN
+  cd $OLD_PWD
+
+  sed -i "s_$OPENSTACK/.+/bin/_$OPENSTACK/glance/bin/" $OPENBIN/glance*
 }
 
 function run {
@@ -223,6 +260,11 @@ case "$1" in
 
     install)
         install $@
+        ;;
+
+    setup)
+        setup $@
+        setup_glance $@
         ;;
 
     run)
