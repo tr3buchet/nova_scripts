@@ -321,8 +321,8 @@ case "$1" in
         ;;
 
     setup)
-        write_screenrc
         setup $@
+        write_screenrc
         branch "" "lp:glance"
         setup_glance $@
         branch
