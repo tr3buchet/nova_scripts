@@ -62,9 +62,10 @@ function branch {
 
 function pull {
     PROJECT=nova
-    if [ -n "$1"]; then
-        PROJECT=$1
+    if [ -n "$2" ]; then
+        PROJECT=$2
     fi
+    echo "bzr pull -d $OPENSTACK/$PROJECT"
     bzr pull -d $OPENSTACK/$PROJECT
 }
 
@@ -209,34 +210,34 @@ function teardown {
 
 case "$1" in
     branch)
-        branch
+        branch $@
         ;;
 
     clean)
-        clean
+        clean $@
         ;;
 
     teardown)
-        teardown
+        teardown $@
         ;;
 
     install)
-        install
+        install $@
         ;;
 
     run)
-        run
+        run $@
         ;;
 
     pull)
-        pull
+        pull $@
         ;;
 
     update)
-        pull
+        pull $@
         ;;
 
     reset)
-        $0 clean && $0 teardown
+        $0 clean $@ && $0 teardown $@
         ;;
 esac
