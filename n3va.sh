@@ -138,6 +138,9 @@ function setup {
       echo "3-> mkdir $OPENSTACK"
       mkdir -p $OPENSTACK
   fi
+  if [[ ! -d $OPENSTACK/.bzr ]]; then
+      bzr init $OPENSTACK
+  fi
   if [[ ! -d "$CONFDIR" ]]; then
       echo "3-> mkdir $CONFDIR"
       mkdir -p $CONFDIR
