@@ -48,8 +48,10 @@ function branch {
         fi
     fi
     if [ -d $OPENSTACK/$DEST_DIR ]; then
-        echo "$OPENSTACK/$DEST_DIR exists... removing"
-        rm -rf $OPENSTACK/$DEST_DIR
+        if [ $OPENSTACK/$DEST_DIR -ne $OPENSTACK ]; then
+            echo "$OPENSTACK/$DEST_DIR exists... removing"
+            rm -rf $OPENSTACK/$DEST_DIR
+        fi
     fi
     bzr branch $SOURCE_BRANCH $OPENSTACK/$DEST_DIR
     if [ -e $NOVA_DIR ]; then
