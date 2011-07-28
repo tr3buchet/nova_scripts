@@ -48,7 +48,8 @@ function branch {
         fi
     fi
     if [ -d $OPENSTACK/$DEST_DIR ]; then
-        if [ $OPENSTACK/$DEST_DIR != $OPENSTACK ]; then
+        if [ $(bansename $OPENSTACK/$DEST_DIR) != $(basename $OPENSTACK) ]
+        then
             echo "$OPENSTACK/$DEST_DIR exists... removing"
             rm -rf $OPENSTACK/$DEST_DIR
         fi
