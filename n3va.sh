@@ -173,6 +173,10 @@ function setup_glance {
   pip install -r $GLANCE_DIR/tools/pip-requires
 }
 
+function setup_nova {
+  pip install -r $NOVA_DIR/tools/pip-requires
+}
+
 function run {
   if [[ ! -d "$CONFDIR" ]]; then
     mkdir -p $CONFDIR
@@ -309,11 +313,12 @@ case "$1" in
         ;;
 
     setup)
-        setup $@
+        setup
         write_screenrc
         branch "" "lp:glance"
-        setup_glance $@
+        setup_glance
         branch
+        setup_nova
         ;;
 
     run)
