@@ -118,7 +118,7 @@ function setup_glance {
   python setup.py develop --script-dir $OPENBIN
   cd $OLD_PWD
 
-  sed -i "s_$OPENSTACK/.+/bin/_$OPENSTACK/glance/bin/" $OPENBIN/glance*
+  sed -i "s_$OPENSTACK/.+/bin/_$OPENSTACK/glance/bin/_" $OPENBIN/glance*
 }
 
 function run {
