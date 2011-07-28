@@ -270,7 +270,7 @@ case "$1" in
 
     setup)
         setup $@
-        branch lp:glance
+        branch "lp:glance"
         setup_glance $@
         ;;
 
