@@ -6,10 +6,6 @@ OPENBIN=$OPENSTACK/bin
 PATH=$OPENBIN:$PATH
 export PATH
 
-# $SUDO will blindly be prepended onto commands
-SUDO_CMD=''
-#SUDO_CMD='$SUDO_CMD'
-
 NOVA_DIR=$OPENSTACK/nova
 GLANCE_DIR=$OPENSTACK/glance
 
@@ -34,57 +30,53 @@ function write_screenrc {
       return
   fi
   echo "3-> writing $OPENSTACK/.screenrc"
-  $SUDO_CMD sh -c 'cat > $OPENSTACK/.screenrc << EOF
-  startup_message off
-  vbell off
-  defscrollback 10000
-  altscreen on
 
-  bind c screen 1
-  bind 0 select 10
-  #screen 1
+  echo -n 'startup_message off
+vbell off
+defscrollback 10000
+altscreen on
 
-  screen -t "api" 1
-  stuff "clear\012"
-  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-api --flagfile=$CONFDIR/nova.conf\012"
-  screen -t "objectstore" 2
-  stuff "clear\012"
-  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-objectstore --flagfile=$CONFDIR/nova.conf\012"
-  screen -t "compute" 3
-  stuff "clear\012"
-  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-compute --flagfile=$CONFDIR/nova.conf\012"
-  screen -t "network" 4
-  stuff "clear\012"
-  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-network --flagfile=$CONFDIR/nova.conf\012"
-  screen -t "scheduler" 5
-  stuff "clear\012"
-  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-scheduler --flagfile=$CONFDIR/nova.conf\012"
-  screen -t "glance api" 6
-  stuff "clear\012"
-  stuff "$SUDO_CMD glance-control api start $CONFDIR/glance-api.conf\012"
-  screen -t "glance-registry" 7
-  stuff "clear\012"
-  stuff "$SUDO_CMD glance-control registry start $CONFDIR/glance-registry.conf\012"
-  screen -t "test" 8
-  stuff "clear\012"
-  stuff "sleep 3\012"
-  stuff ". $CONFDIR/novarc\012"
-  stuff "euca-add-keypair nova_key > $CONFDIR/nova_key.priv\012"
-  stuff "nova image-list\012"
-  stuff "nova flavor-list\012"
-  stuff "nova list\012"
-  stuff "nova boot t1 --flavor=1 --image="
-  screen -t "db" 9
-  stuff "clear\012"
-  stuff "mysql -uroot -pnova\012"
-  stuff "use nova\012"
+bind c screen 1
+bind 0 select 10
 
-  caption always "%{= g}%-w%{= r}%n %t%{-}%+w %-=%{g}(%{d}%H/%l%{g})"
+screen -t "api" 1
+stuff "clear\012"
+stuff "$NOVA_DIR/bin/nova-api --flagfile=$CONFDIR/nova.conf\012"
+screen -t "objectstore" 2
+stuff "clear\012"
+stuff "$NOVA_DIR/bin/nova-objectstore --flagfile=$CONFDIR/nova.conf\012"
+screen -t "compute" 3
+stuff "clear\012"
+stuff "$NOVA_DIR/bin/nova-compute --flagfile=$CONFDIR/nova.conf\012"
+screen -t "network" 4
+stuff "clear\012"
+stuff "$NOVA_DIR/bin/nova-network --flagfile=$CONFDIR/nova.conf\012"
+screen -t "scheduler" 5
+stuff "clear\012"
+stuff "$NOVA_DIR/bin/nova-scheduler --flagfile=$CONFDIR/nova.conf\012"
+screen -t "glance api" 6
+stuff "clear\012"
+stuff "glance-control api start $CONFDIR/glance-api.conf\012"
+screen -t "glance-registry" 7
+stuff "clear\012"
+stuff "glance-control registry start $CONFDIR/glance-registry.conf\012"
+screen -t "test" 8
+stuff "clear\012"
+stuff "sleep 3\012"
+stuff ". $CONFDIR/novarc\012"
+stuff "euca-add-keypair nova_key > $CONFDIR/nova_key.priv\012"
+stuff "nova image-list\012"
+stuff "nova flavor-list\012"
+stuff "nova list\012"
+stuff "nova boot t1 --flavor=1 --image="
+screen -t "db" 9
+stuff "clear\012"
+stuff "mysql -uroot -pnova\012"
+stuff "use nova\012"
 
-  select 8
-EOF'
+caption always "%{= g}%-w%{= r}%n %t%{-}%+w %-=%{g}(%{d}%H/%l%{g})"
 
-
+select 8' > $OPENSTACK/.screenrc
 }
 
 function branch {
@@ -130,9 +122,9 @@ function pull {
 
 # You should only have to run this once
 function install {
-    $SUDO_CMD apt-get install -y bzr mysql-server build-essential rabbitmq-server euca2ools unzip
-    $SUDO_CMD apt-get install -y python-twisted python-gflags python-carrot python-eventlet python-ipy python-sqlalchemy python-mysqldb python-webob python-redis python-mox pyth
-    $SUDO_CMD apt-get install -y python-m2crypto python-netaddr python-pastedeploy python-migrate python-tempita iptables
+    apt-get install -y bzr mysql-server build-essential rabbitmq-server euca2ools unzip
+    apt-get install -y python-twisted python-gflags python-carrot python-eventlet python-ipy python-sqlalchemy python-mysqldb python-webob python-redis python-mox pyth
+    apt-get install -y python-m2crypto python-netaddr python-pastedeploy python-migrate python-tempita iptables
 
     if [[ "$USE_MYSQL" == 1 ]]; then
         mysqladmin -u root -p $MYSQL_PASS password $MYSQL_PASS
@@ -185,7 +177,7 @@ function run {
     mkdir -p $CONFDIR
   fi
   echo "3-> writing $CONFDIR/nova.conf"
-  $SUDO_CMD sh -c "cat > $CONFDIR/nova.conf << EOF
+  sh -c "cat > $CONFDIR/nova.conf << EOF
 --verbose
 --nodaemon
 --sql_connection=$SQL_CONN/nova
@@ -207,13 +199,9 @@ EOF"
 #--image_service=nova.image.local.LocalImageService
 
     echo "3-> cleaning vlans"
-    $SUDO_CMD $NOVA_DIR/tools/clean-vlans
+    $NOVA_DIR/tools/clean-vlans
 
-#    echo "3-> making sure glance is up to date"
-#    cd $GLANCE_DIR
-#    bzr pull
-#    $SUDO_CMD python setup.py install
-    $SUDO_CMD glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
+    glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
 
 
     if [[ ! -d "$NOVA_DIR/images" ]]; then
@@ -234,7 +222,7 @@ EOF"
         echo "3-> creating user, project, env_variables, and network"
         cd $NOVA_DIR/nova/CA
 
-        $SUDO_CMD ./genrootca.sh
+        ./genrootca.sh
         cd $OPENSTACK
         echo db sync
         $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf db sync
@@ -264,7 +252,6 @@ EOF"
     export NOVA_DIR
     export GLANCE_DIR
     export OPENSTACK
-    export SUDO_CMD
     export CONFDIR
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
@@ -276,10 +263,7 @@ function clean {
     echo "3-> kill screen (if running)"
     screen -S nova -X quit
     echo "3-> removing .pids"
-#    $SUDO_CMD killall /usr/bin/python
-    $SUDO_CMD glance-control all stop
-    $SUDO_CMD rm -f *.pid*
-    $SUDO_CMD rm -f n3va.[[0-9]]*
+    glance-control all stop
 }
 
 function teardown {
