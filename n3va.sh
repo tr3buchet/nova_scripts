@@ -221,4 +221,4 @@ case "$1" in
     reset)
         $0 clean && $0 teardown
         ;;
-easc
+esac
