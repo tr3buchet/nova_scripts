@@ -180,6 +180,12 @@ function setup_nova {
   pip install -r $NOVA_DIR/tools/pip-requires
 }
 
+function upload_images {
+  for image in $(ls $HOME/*.ova); do
+      glance add name=$image is_public=True < $image
+  done
+}
+
 function run {
   if [[ ! -d "$CONFDIR" ]]; then
     mkdir -p $CONFDIR
@@ -213,6 +219,7 @@ EOF"
 
     # Glance y u no use exit status?
     if [[ $(glance index) == *No*images* ]]; then
+        echo "3-> uploading images"
         upload_images
     fi
 
@@ -290,12 +297,6 @@ function teardown {
 
     echo "3-> destroying xenserver instances"
     ssh root@$XS_IP /root/bin/clobber.sh
-}
-
-function upload_images {
-  for image in $(ls $HOME/*.ova); do
-      glance add name=$image is_public=True < $image
-  done
 }
 
 function die_in_a_fire {
