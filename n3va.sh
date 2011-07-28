@@ -180,6 +180,8 @@ if [ "$CMD" == "teardown" ]; then
     if [ "$USE_MYSQL" == 1 ]; then
         mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE nova;'
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE nova;'
+#        mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE glance;'
+#        mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE glance;'
     else
         rm -f $DIR/nova.sqlite
     fi
