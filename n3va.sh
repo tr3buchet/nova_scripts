@@ -54,15 +54,7 @@ stuff "$NOVA_DIR/bin/nova-network --flagfile=$CONFDIR/nova.conf\012"
 screen -t "scheduler" 5
 stuff "clear\012"
 stuff "$NOVA_DIR/bin/nova-scheduler --flagfile=$CONFDIR/nova.conf\012"
-screen -t "glance api" 6
-stuff "clear\012"
-stuff "glance-control api start $CONFDIR/glance-api.conf\012"
-screen -t "glance-registry" 7
-stuff "clear\012"
-stuff "glance-control registry start $CONFDIR/glance-registry.conf\012"
-# This sucks, need a better way
-stuff "glance add name=squeeze-110613 disk_format=vhd container_format=ovf os_type=linux arch=x86-64 is_public=True < $HOME/squeeze-110613.ova\012"
-screen -t "test" 8
+screen -t "test" 6
 stuff "clear\012"
 stuff "sleep 3\012"
 stuff ". $CONFDIR/novarc\012"
@@ -78,7 +70,7 @@ stuff "use nova\012"
 
 caption always "%{= g}%-w%{= r}%n %t%{-}%+w %-=%{g}(%{d}%H/%l%{g})"
 
-select 8' > $OPENSTACK/.screenrc
+select 6' > $OPENSTACK/.screenrc
 }
 
 function branch {
@@ -218,6 +210,12 @@ EOF"
     $NOVA_DIR/tools/clean-vlans
 
     glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
+    glance-control api start $CONFDIR/glance-api.conf
+    glance-control registry start $CONFDIR/glance-registry.conf
+
+    if [[ $(glance index) == *No*image* ]]; then
+        upload_images
+    fi
 
     if [[ "$TEST" == 1 ]]; then
         echo "3-> running tests"
