@@ -8,10 +8,6 @@ SUDO_CMD=''
 #SUDO_CMD='$SUDO_CMD'
 
 CMD=$1
-SOURCE_BRANCH=lp:nova
-if [ -n "$2" ]; then
-    SOURCE_BRANCH=$2
-fi
 
 NOVA_DIR=$OPENSTACK/nova
 GLANCE_DIR=$OPENSTACK/glance
@@ -68,16 +64,27 @@ EOF"
 #--image_service=nova.image.local.LocalImageService
 fi
 
-if [ "$CMD" == "branch" ]; then
-    rm -rf $NOVA_DIR
-    bzr branch $SOURCE_BRANCH $NOVA_DIR
-    cd $NOVA_DIR
+function branch {
+    SOURCE_BRANCH=lp:nova
+    DEST_DIR=nova-trunk
+    if [ -n "$2" ]; then
+        SOURCE_BRANCH=$2
+        if [ -n "$3"]; then
+            DEST_DIR=$3
+        else
+            DEST_DIR=$(echo $2 | cut -d: -f2)
+            DEST_DIR=${STR##*/}
+        fi
+    fi
+    rm $NOVA_DIR
+    bzr branch $SOURCE_BRANCH $DEST_DIR
+    ln -s $NOVA_DIR `cd $OPENSTACK/$DEST_DIR; pwd`
     mkdir -p $NOVA_DIR/instances
     mkdir -p $NOVA_DIR/networks
-fi
+}
 
 # You should only have to run this once
-if [ "$CMD" == "install" ]; then
+function install {
     $SUDO_CMD apt-get install -y bzr mysql-server build-essential rabbitmq-server euca2ools unzip
     $SUDO_CMD apt-get install -y python-twisted python-gflags python-carrot python-eventlet python-ipy python-sqlalchemy python-mysqldb python-webob python-redis python-mox pyth
     $SUDO_CMD apt-get install -y python-m2crypto python-netaddr python-pastedeploy python-migrate python-tempita iptables
@@ -87,9 +94,9 @@ if [ "$CMD" == "install" ]; then
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE nova;'
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE glance;'
     fi
-fi
+}
 
-if [ "$CMD" == "run" ]; then
+function run {
     echo "3-> resetting instances and networks folders"
     $SUDO_CMD rm -rf $NOVA_DIR/instances
     mkdir -p $NOVA_DIR/instances
@@ -160,9 +167,9 @@ if [ "$CMD" == "run" ]; then
     # so send the start command by forcing text into the window.
     echo "3-> starting screen"
     screen -S nova -c $SCREENRC
-fi
+}
 
-if [ "$CMD" == "clean" ]; then
+function clean {
     echo "3-> kill screen (if running)"
     screen -S nova -X quit
     echo "3-> removing .pids"
@@ -170,9 +177,9 @@ if [ "$CMD" == "clean" ]; then
     $SUDO_CMD glance-control all stop
     $SUDO_CMD rm -f *.pid*
     $SUDO_CMD rm -f n3va.[0-9]*
-fi
+}
 
-if [ "$CMD" == "teardown" ]; then
+function teardown {
     echo "3-> rm $CONFDIR/nova.zip"
     rm -f $CONFDIR/nova.zip
 
@@ -188,4 +195,29 @@ if [ "$CMD" == "teardown" ]; then
 
     echo "3-> destroying xenserver instances"
     ssh root@$XS_IP /root/bin/clobber.sh
-fi
+}
+
+case "$1" in
+    branch)
+        branch
+        ;;
+
+    clean)
+        clean
+        ;;
+
+    teardown)
+        teardown
+        ;;
+
+    install)
+        install
+        ;;
+
+    run)
+        run
+        ;;
+
+    reset)
+        $0 clean && $0 teardown
+        ;;
