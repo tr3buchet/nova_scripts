@@ -164,8 +164,8 @@ function setup_glance {
   cp -a $GLANCE_DIR/etc/*.conf $CONFDIR
   # sed lets you use anything as the separators as long as it follows the
   # pattern
-  sed -i "s_/var/log/glance_$CONFDIR/logs_" $CONFDIR/glance*.conf
-  sed -i "s_/var/lib/glance_$CONFDIR_" $CONFDIR/glance*.conf
+  sed -i "s:/var/log/glance:$CONFDIR/logs:" $CONFDIR/glance*.conf
+  sed -i "s:/var/lib/glance:${CONFDIR}:" $CONFDIR/glance*.conf
 
   OLD_PWD=$(pwd)
   cd $GLANCE_DIR
