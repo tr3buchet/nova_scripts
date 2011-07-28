@@ -242,7 +242,7 @@ EOF"
         $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf project create openstack admin
 
         echo networks
-        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create --label=public --fixed_range_v4=10.1.1.0/30 --num_networks=1 --network_size=4 --bridge_interface=xenbr0
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create --label=public --fixed_range_v4=10.1.1.0/30 --num_networks=1 --network_size=4 --bridge=xenbr0
 
         # create zip file
         cd $CONFDIR
