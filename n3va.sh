@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 OPENSTACK=$HOME/openstack
-SCREENRC=$HOME/screenrc-nova
 CONFDIR=$OPENSTACK/conf
 OPENBIN=$OPENSTACK/bin
 
@@ -29,6 +28,64 @@ if [[ "$USE_MYSQL" == 1 ]]; then
 else
     SQL_CONN=sqlite:///$OPENSTACK/nova.sqlite
 fi
+
+function write_screenrc {
+  if [[ -e $OPENSTACK/.screenrc ]]; then
+      return
+  fi
+  echo "3-> writing $OPENSTACK/.screenrc"
+  $SUDO_CMD sh -c 'cat > $OPENSTACK/.screenrc << EOF
+  startup_message off
+  vbell off
+  defscrollback 10000
+  altscreen on
+
+  bind c screen 1
+  bind 0 select 10
+  #screen 1
+
+  screen -t "api" 1
+  stuff "clear\012"
+  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-api --flagfile=$CONFDIR/nova.conf\012"
+  screen -t "objectstore" 2
+  stuff "clear\012"
+  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-objectstore --flagfile=$CONFDIR/nova.conf\012"
+  screen -t "compute" 3
+  stuff "clear\012"
+  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-compute --flagfile=$CONFDIR/nova.conf\012"
+  screen -t "network" 4
+  stuff "clear\012"
+  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-network --flagfile=$CONFDIR/nova.conf\012"
+  screen -t "scheduler" 5
+  stuff "clear\012"
+  stuff "$SUDO_CMD $NOVA_DIR/bin/nova-scheduler --flagfile=$CONFDIR/nova.conf\012"
+  screen -t "glance api" 6
+  stuff "clear\012"
+  stuff "$SUDO_CMD glance-control api start $CONFDIR/glance-api.conf\012"
+  screen -t "glance-registry" 7
+  stuff "clear\012"
+  stuff "$SUDO_CMD glance-control registry start $CONFDIR/glance-registry.conf\012"
+  screen -t "test" 8
+  stuff "clear\012"
+  stuff "sleep 3\012"
+  stuff ". $CONFDIR/novarc\012"
+  stuff "euca-add-keypair nova_key > $CONFDIR/nova_key.priv\012"
+  stuff "nova image-list\012"
+  stuff "nova flavor-list\012"
+  stuff "nova list\012"
+  stuff "nova boot t1 --flavor=1 --image="
+  screen -t "db" 9
+  stuff "clear\012"
+  stuff "mysql -uroot -pnova\012"
+  stuff "use nova\012"
+
+  caption always "%{= g}%-w%{= r}%n %t%{-}%+w %-=%{g}(%{d}%H/%l%{g})"
+
+  select 8
+EOF'
+
+
+}
 
 function branch {
     SOURCE_BRANCH=lp:nova
@@ -264,6 +321,7 @@ case "$1" in
         ;;
 
     setup)
+        write_screenrc
         setup $@
         branch "" "lp:glance"
         setup_glance $@
