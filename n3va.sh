@@ -161,7 +161,7 @@ if [ "$CMD" == "run" ]; then
     export GLANCE_DIR
     export OPENSTACK
     export SUDO_CMD
-    export $CONFDIR
+    export CONFDIR
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
     echo "3-> starting screen"
