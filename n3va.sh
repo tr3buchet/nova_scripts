@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 OPENSTACK=$HOME/openstack
 SCREENRC=$HOME/screenrc-nova
+CONFDIR=$OPENSTACK/conf
 
 # $SUDO will blindly be prepended onto commands
 SUDO_CMD=''
@@ -41,8 +42,11 @@ else
 fi
 
 if [ "$CMD" == "run" ]; then
-  echo "3-> writing $OPENSTACK/nova.conf"
-  sudo sh -c "cat > $OPENSTACK/nova.conf << EOF
+  if [ ! -d "$CONFDIR" ]; then
+    mkdir -p $CONFDIR
+  fi
+  echo "3-> writing $CONFDIR/nova.conf"
+  sudo sh -c "cat > $CONFDIR/nova.conf << EOF
 --verbose
 --nodaemon
 --sql_connection=$SQL_CONN/nova
@@ -123,30 +127,31 @@ if [ "$CMD" == "run" ]; then
         sudo ./genrootca.sh
         cd $OPENSTACK
         echo db sync
-        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf db sync
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf db sync
         # create an admin user called 'admin'
         echo user
-        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf user admin admin admin
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf user admin admin admin
         # create a project called 'admin' with project manager of 'admin'
         echo project
-        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf project create openstack admin
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf project create openstack admin
         # export environment variables for project 'admin' and user 'admin'
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf project environment admin admin $NOVA_DIR/novarc
         # create a small network
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create 192.168.0.0/16 1 32 0 0 0 private
         # create a small network 2
         echo networks
-        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf network create public 10.1.1.0/30 1 4 0 0 0 0 xenbr1
-        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf network create public 10.10.1.0/30 1 4 0 0 0 0 xenbr1
-        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf network create private 10.2.0.0/16 1 8 0 0 0 0 xenbr2
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create public 10.1.1.0/30 1 4 0 0 0 0 xenbri0
+#        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create public 10.10.1.0/30 1 4 0 0 0 0 xenbr1
+#        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create private 10.2.0.0/16 1 8 0 0 0 0 xenbr2
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create public 0 xenbr1
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create private 0 xenbr2
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf subnet create 1 10.1.1.0/24
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf subnet create 2 10.2.0.0/24
 
         # create zip file
+        cd $CONFDIR
         echo project zip
-        $NOVA_DIR/bin/nova-manage --flagfile=$OPENSTACK/nova.conf project zip openstack admin
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf project zip openstack admin
         # extract/remove zip file
         echo unzip
         unzip -o nova.zip
@@ -156,6 +161,7 @@ if [ "$CMD" == "run" ]; then
     export GLANCE_DIR
     export OPENSTACK
     export SUDO_CMD
+    export $CONFDIR
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
     echo "3-> starting screen"
@@ -173,8 +179,8 @@ if [ "$CMD" == "clean" ]; then
 fi
 
 if [ "$CMD" == "teardown" ]; then
-    echo "3-> rm nova.zip"
-    rm -f nova.zip
+    echo "3-> rm $CONFDIR/nova.zip"
+    rm -f $CONFDIR/nova.zip
 
     echo "3-> resetting database"
     if [ "$USE_MYSQL" == 1 ]; then
