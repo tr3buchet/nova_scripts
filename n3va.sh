@@ -237,13 +237,9 @@ EOF"
         # create a project called 'admin' with project manager of 'admin'
         echo project
         $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf project create openstack admin
-        # export environment variables for project 'admin' and user 'admin'
-#        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf project environment admin admin $NOVA_DIR/novarc
-        # create a small network
-#        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create 192.168.0.0/16 1 32 0 0 0 private
-        # create a small network 2
+
         echo networks
-        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create --label=public --network=10.1.1.0/30 --num_networks=1 --network_size=4 --bridge_interface=xenbr0
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create --label=public --fixed_range_v4=10.1.1.0/30 --num_networks=1 --network_size=4 --bridge_interface=xenbr0
 
         # create zip file
         cd $CONFDIR
