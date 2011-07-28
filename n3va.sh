@@ -19,10 +19,6 @@ TEST=${TEST:-0}
 LIBVIRT_TYPE=${LIBVIRT_TYPE:-qemu}
 #NET_MAN=${NET_MAN:-VlanManager}
 NET_MAN=${NET_MAN:-FlatManager}
-# NOTE(vish): If you are using FlatDHCP make sure that this is not your
-#             public interface. You can comment it out for local usage
-BRIDGE_DEV=eth0
-
 
 if [ "$USE_MYSQL" == 1 ]; then
     SQL_CONN=mysql://root:$MYSQL_PASS@localhost
