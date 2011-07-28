@@ -176,6 +176,7 @@ function setup_nova {
 
 function upload_images {
   for image in $(ls $HOME/*.ova); do
+      echo "3-> uploading $image"
       glance add name=$image is_public=True < $image
   done
 }
