@@ -165,7 +165,7 @@ function setup_glance {
   # sed lets you use anything as the separators as long as it follows the
   # pattern
   sed -i "s_/var/log/glance_$CONFDIR/logs_" $CONFDIR/glance*.conf
-  sed -i "s_/var/lib/glance_$CONFDIR" $CONFDIR/glance*.conf
+  sed -i "s_/var/lib/glance_$CONFDIR_" $CONFDIR/glance*.conf
 
   OLD_PWD=$(pwd)
   cd $GLANCE_DIR
@@ -211,6 +211,10 @@ EOF"
 
     glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
 
+    # Glance y u no use exit status?
+    if [[ $(glance index) == *No*images* ]]; then
+        upload_images
+    fi
 
     if [[ ! -d "$NOVA_DIR/images" ]]; then
         ln -s $OPENSTACK/images $NOVA_DIR/images
@@ -286,6 +290,12 @@ function teardown {
 
     echo "3-> destroying xenserver instances"
     ssh root@$XS_IP /root/bin/clobber.sh
+}
+
+function upload_images {
+  for image in $(ls $HOME/*.ova); do
+      glance add name=$image is_public=True < $image
+  done
 }
 
 function die_in_a_fire {
