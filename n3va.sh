@@ -170,6 +170,7 @@ function setup_glance {
   cd $OLD_PWD
 
   sed -i "s_$OPENSTACK/.+/bin/_$OPENSTACK/glance/bin/_" $OPENBIN/glance*
+  pip install -r $GLANCE_DIR/tools/pip-requires
 }
 
 function run {
