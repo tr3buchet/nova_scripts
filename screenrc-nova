@@ -24,10 +24,10 @@ stuff "clear\012"
 stuff "$SUDO_CMD $NOVA_DIR/bin/nova-scheduler --flagfile=$CONFDIR/nova.conf\012"
 screen -t "glance api" 6
 stuff "clear\012"
-stuff "$SUDO_CMD glance-control api start $OPENSTACK/glance-api.conf\012"
+stuff "$SUDO_CMD glance-control api start $CONFDIR/glance-api.conf\012"
 screen -t "glance-registry" 7
 stuff "clear\012"
-stuff "$SUDO_CMD glance-control registry start $OPENSTACK/glance-registry.conf\012"
+stuff "$SUDO_CMD glance-control registry start $CONFDIR/glance-registry.conf\012"
 screen -t "test" 8
 stuff "clear\012"
 stuff ". $CONFDIR/novarc\012"
