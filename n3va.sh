@@ -256,7 +256,7 @@ EOF"
     # nova api crashes if we start it with a regular screen command,
     # so send the start command by forcing text into the window.
     echo "3-> starting screen"
-    screen -S nova -c $SCREENRC
+    screen -S nova -c $OPENSTACK/.screenrc
 }
 
 function clean {
