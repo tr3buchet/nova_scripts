@@ -140,7 +140,7 @@ if [ "$CMD" == "run" ]; then
 #        $NOVA_DIR/bin/nova-manage --flagfile=nova.conf network create 192.168.0.0/16 1 32 0 0 0 private
         # create a small network 2
         echo networks
-        $NOVA_DIR/bin/nova-manage network create --label=public --network=10.1.1.1.1/30 --num_networks=1 --network_size=4 --bridge_interface=xenbr0
+        $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf network create --label=public --network=10.1.1.1.1/30 --num_networks=1 --network_size=4 --bridge_interface=xenbr0
 
         # create zip file
         cd $CONFDIR
