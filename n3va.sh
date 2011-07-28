@@ -267,6 +267,7 @@ case "$1" in
         setup $@
         branch "" "lp:glance"
         setup_glance $@
+        branch
         ;;
 
     run)
