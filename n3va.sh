@@ -84,6 +84,11 @@ function install {
 }
 
 function setup {
+  if [! -d "$OPENSTACK" ]; then
+      mkdir -p $OPENSTACK
+  fi
+  if [! -d "$CONFDIR" ]; then
+      mkdir -p $CONFDIR
   if [! -d "$OPENBIN" ]; then
       mkdir -p $OPENBIN
   fi
