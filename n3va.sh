@@ -165,9 +165,9 @@ function setup_glance {
   cd $GLANCE_DIR
   python setup.py develop --script-dir $OPENBIN
   cd $OLD_PWD
-
-  sed -i "s:$OPENSTACK/.+/bin/:$OPENSTACK/glance/bin/:" $OPENBIN/glance*
   pip install -r $GLANCE_DIR/tools/pip-requires
+  rm $OPENBIN/glance*
+  ln -s $GLANCE_DIR/bin/* $OPENBIN
 }
 
 function setup_nova {
