@@ -329,6 +329,9 @@ case "$1" in
         setup_nova
         ;;
     run)
+        if [[ ! -d $OPENSTACK ]]; then
+            $0 setup
+        fi
         run $@
         ;;
 
