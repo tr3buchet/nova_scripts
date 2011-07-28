@@ -218,13 +218,9 @@ EOF"
     glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
 
     # Glance y u no use exit status?
-    if [[ $(glance index) == *No*images* ]]; then
+    if [[ $(glance index) == *No* ]]; then
         echo "3-> uploading images"
         upload_images
-    fi
-
-    if [[ ! -d "$NOVA_DIR/images" ]]; then
-        ln -s $OPENSTACK/images $NOVA_DIR/images
     fi
 
     if [[ "$TEST" == 1 ]]; then
