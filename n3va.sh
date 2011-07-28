@@ -10,11 +10,6 @@ SUDO_CMD=''
 NOVA_DIR=$OPENSTACK/nova
 GLANCE_DIR=$OPENSTACK/glance
 
-if [ -n "$3" ]; then
-    NOVA_DIR=$OPENSTACK/$3
-fi
-
-
 XS_IP=${XS_IP:-127.0.0.1}
 XS_USER=${XS_USER:-root}
 XS_PASS=${XS_PASS:-qwerty}
@@ -47,7 +42,6 @@ function branch {
             DEST_DIR=${DEST_DIR##*/}
         fi
     fi
-    echo "$DEST_DIR"
     if [ -d $OPENSTACK/$DEST_DIR ]; then
         if [ $(basename $OPENSTACK/$DEST_DIR) != $(basename $OPENSTACK) ]
         then
