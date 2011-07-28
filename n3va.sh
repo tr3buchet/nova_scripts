@@ -166,7 +166,7 @@ function setup_glance {
   python setup.py develop --script-dir $OPENBIN
   cd $OLD_PWD
 
-  sed -i "s_$OPENSTACK/.+/bin/_$OPENSTACK/glance/bin/_" $OPENBIN/glance*
+  sed -i "s:$OPENSTACK/.+/bin/:$OPENSTACK/glance/bin/:" $OPENBIN/glance*
   pip install -r $GLANCE_DIR/tools/pip-requires
 }
 
