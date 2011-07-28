@@ -90,7 +90,7 @@ function setup {
   if [ ! -d "$CONFDIR" ]; then
       mkdir -p $CONFDIR
   fi
-  if [i ! -d "$OPENBIN" ]; then
+  if [ i ! -d "$OPENBIN" ]; then
       mkdir -p $OPENBIN
   fi
 }
