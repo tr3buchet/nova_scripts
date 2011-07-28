@@ -7,8 +7,6 @@ CONFDIR=$OPENSTACK/conf
 SUDO_CMD=''
 #SUDO_CMD='$SUDO_CMD'
 
-CMD=$1
-
 NOVA_DIR=$OPENSTACK/nova
 GLANCE_DIR=$OPENSTACK/glance
 
@@ -35,33 +33,6 @@ if [ "$USE_MYSQL" == 1 ]; then
     SQL_CONN=mysql://root:$MYSQL_PASS@localhost
 else
     SQL_CONN=sqlite:///$OPENSTACK/nova.sqlite
-fi
-
-if [ "$CMD" == "run" ]; then
-  if [ ! -d "$CONFDIR" ]; then
-    mkdir -p $CONFDIR
-  fi
-  echo "3-> writing $CONFDIR/nova.conf"
-  $SUDO_CMD sh -c "cat > $CONFDIR/nova.conf << EOF
---verbose
---nodaemon
---sql_connection=$SQL_CONN/nova
---network_manager=nova.network.manager.$NET_MAN
---image_service=nova.image.glance.GlanceImageService
---connection_type=xenapi
---xenapi_connection_url=https://$XS_IP
---xenapi_connection_username=$XS_USER
---xenapi_connection_password=$XS_PASS
---rescue-timeout=86400
---allow_admin_api=true
---xenapi_inject_image=false
---xenapi_remap_vbd_dev=true
---flat_injected=false
---ca_path=$NOVA_DIR/nova/CA
-EOF"
-#--use_ipv6=true
-#--flat_network_bridge=xenbr0
-#--image_service=nova.image.local.LocalImageService
 fi
 
 function branch {
@@ -97,6 +68,31 @@ function install {
 }
 
 function run {
+  if [ ! -d "$CONFDIR" ]; then
+    mkdir -p $CONFDIR
+  fi
+  echo "3-> writing $CONFDIR/nova.conf"
+  $SUDO_CMD sh -c "cat > $CONFDIR/nova.conf << EOF
+--verbose
+--nodaemon
+--sql_connection=$SQL_CONN/nova
+--network_manager=nova.network.manager.$NET_MAN
+--image_service=nova.image.glance.GlanceImageService
+--connection_type=xenapi
+--xenapi_connection_url=https://$XS_IP
+--xenapi_connection_username=$XS_USER
+--xenapi_connection_password=$XS_PASS
+--rescue-timeout=86400
+--allow_admin_api=true
+--xenapi_inject_image=false
+--xenapi_remap_vbd_dev=true
+--flat_injected=false
+--ca_path=$NOVA_DIR/nova/CA
+EOF"
+#--use_ipv6=true
+#--flat_network_bridge=xenbr0
+#--image_service=nova.image.local.LocalImageService
+
     echo "3-> resetting instances and networks folders"
     $SUDO_CMD rm -rf $NOVA_DIR/instances
     mkdir -p $NOVA_DIR/instances
