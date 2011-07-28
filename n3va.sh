@@ -56,6 +56,14 @@ function branch {
     mkdir -p $NOVA_DIR/networks
 }
 
+function pull {
+    PROJECT=nova
+    if [ -n "$1"]; then
+        PROJECT=$1
+    fi
+    bzr pull -d $OPENSTACK/$PROJECT
+}
+
 # You should only have to run this once
 function install {
     $SUDO_CMD apt-get install -y bzr mysql-server build-essential rabbitmq-server euca2ools unzip
@@ -214,6 +222,14 @@ case "$1" in
 
     run)
         run
+        ;;
+
+    pull)
+        pull
+        ;;
+
+    update)
+        pull
         ;;
 
     reset)
