@@ -30,6 +30,7 @@ stuff "clear\012"
 stuff "$SUDO_CMD glance-control registry start $CONFDIR/glance-registry.conf\012"
 screen -t "test" 8
 stuff "clear\012"
+stuff "sleep 3\012"
 stuff ". $CONFDIR/novarc\012"
 stuff "euca-add-keypair nova_key > $CONFDIR/nova_key.priv\012"
 stuff "nova image-list\012"
