@@ -60,6 +60,8 @@ stuff "glance-control api start $CONFDIR/glance-api.conf\012"
 screen -t "glance-registry" 7
 stuff "clear\012"
 stuff "glance-control registry start $CONFDIR/glance-registry.conf\012"
+# This sucks, need a better way
+stuff "glance add name=squeeze-110613 disk_format=vhd container_format=ovf os_type=linux arch=x86-64 is_public=True < $HOME/squeeze-110613.ova\012"
 screen -t "test" 8
 stuff "clear\012"
 stuff "sleep 3\012"
@@ -216,9 +218,6 @@ EOF"
     $NOVA_DIR/tools/clean-vlans
 
     glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
-
-    echo "3-> uploading images"
-    upload_images
 
     if [[ "$TEST" == 1 ]]; then
         echo "3-> running tests"
