@@ -40,6 +40,7 @@ function branch {
     DEST_DIR=nova-trunk
     if [ -n "$2" ]; then
         SOURCE_BRANCH=$2
+        echo "$SOURCE_BRANCH"
         if [ -n "$3"]; then
             DEST_DIR=$3
         else
