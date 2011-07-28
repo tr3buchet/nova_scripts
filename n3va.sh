@@ -24,7 +24,7 @@ LIBVIRT_TYPE=${LIBVIRT_TYPE:-qemu}
 #NET_MAN=${NET_MAN:-VlanManager}
 NET_MAN=${NET_MAN:-FlatManager}
 
-if [ "$USE_MYSQL" == 1 ]; then
+if [[ "$USE_MYSQL" == 1 ]]; then
     SQL_CONN=mysql://root:$MYSQL_PASS@localhost
 else
     SQL_CONN=sqlite:///$OPENSTACK/nova.sqlite
@@ -33,37 +33,39 @@ fi
 function branch {
     SOURCE_BRANCH=lp:nova
     DEST_DIR=nova-trunk
-    if [ -n "$2" ]; then
+    LINK_DIR=$NOVA_DIR
+    if [[ -n "$2" ]]; then
         SOURCE_BRANCH=$2
-        if [ $SOURCE_BRANCH == "lp:glance" ]; then
+        if [[ $SOURCE_BRANCH == *glance* ]]; then
+            LINK_DIR=$GLANCE_DIR
+        fi
+        if [[ $SOURCE_BRANCH == "lp:glance" ]]; then
             DEST_DIR=glance-trunk
         fi
-        if [ -n "$3" ]; then
+        if [[ -n "$3" ]]; then
             DEST_DIR=$3
         else
             DEST_DIR=$(echo $2 | cut -d: -f2)
             DEST_DIR=${DEST_DIR##*/}
         fi
     fi
-    if [ -d $OPENSTACK/$DEST_DIR ]; then
-        if [ $(basename $OPENSTACK/$DEST_DIR) != $(basename $OPENSTACK) ]
+    if [[ -d $OPENSTACK/$DEST_DIR ]]; then
+        if [[ $(basename $OPENSTACK/$DEST_DIR) != $(basename $OPENSTACK) ]]
         then
             echo "$OPENSTACK/$DEST_DIR exists... removing"
             rm -rf $OPENSTACK/$DEST_DIR
         fi
     fi
     bzr branch $SOURCE_BRANCH $OPENSTACK/$DEST_DIR
-    if [ -e $NOVA_DIR ]; then
-        rm $NOVA_DIR
+    if [[ -e $LINK_DIR ]]; then
+        rm $LINK_DIR
     fi
-    ln -s `cd $OPENSTACK/$DEST_DIR; pwd` $NOVA_DIR
-    mkdir -p $NOVA_DIR/instances
-    mkdir -p $NOVA_DIR/networks
+    ln -s `cd $OPENSTACK/$DEST_DIR; pwd` $LINK_DIR
 }
 
 function pull {
     PROJECT=nova
-    if [ -n "$2" ]; then
+    if [[ -n "$2" ]]; then
         PROJECT=$2
     fi
     echo "bzr pull -d $OPENSTACK/$PROJECT"
@@ -76,7 +78,7 @@ function install {
     $SUDO_CMD apt-get install -y python-twisted python-gflags python-carrot python-eventlet python-ipy python-sqlalchemy python-mysqldb python-webob python-redis python-mox pyth
     $SUDO_CMD apt-get install -y python-m2crypto python-netaddr python-pastedeploy python-migrate python-tempita iptables
 
-    if [ "$USE_MYSQL" == 1 ]; then
+    if [[ "$USE_MYSQL" == 1 ]]; then
         mysqladmin -u root -p $MYSQL_PASS password $MYSQL_PASS
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE nova;'
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE glance;'
@@ -84,25 +86,25 @@ function install {
 }
 
 function setup {
-  if [ ! -d "$OPENSTACK" ]; then
+  if [[ ! -d "$OPENSTACK" ]]; then
       mkdir -p $OPENSTACK
   fi
-  if [ ! -d "$CONFDIR" ]; then
+  if [[ ! -d "$CONFDIR" ]]; then
       mkdir -p $CONFDIR
   fi
-  if [ i ! -d "$OPENBIN" ]; then
+  if [[ ! -d "$OPENBIN" ]]; then
       mkdir -p $OPENBIN
   fi
 }
 
 function setup_glance {
-  if [ ! -d "$CONFDIR/logs" ]; then
+  if [[ ! -d "$CONFDIR/logs" ]]; then
     mkdir -p $CONFDIR/logs
   fi
-  if [ ! -d "$CONFDIR/image-cache" ]; then
+  if [[ ! -d "$CONFDIR/image-cache" ]]; then
     mkdir -p $CONFDIR/image-cache
   fi
-  if [ ! -d "$CONFDIR/images" ]; then
+  if [[ ! -d "$CONFDIR/images" ]]; then
     mkdir -p $CONFDIR/images
   fi
   cp -a $GLANCE_DIR/etc/*.conf $CONFDIR
@@ -120,7 +122,7 @@ function setup_glance {
 }
 
 function run {
-  if [ ! -d "$CONFDIR" ]; then
+  if [[ ! -d "$CONFDIR" ]]; then
     mkdir -p $CONFDIR
   fi
   echo "3-> writing $CONFDIR/nova.conf"
@@ -145,12 +147,6 @@ EOF"
 #--flat_network_bridge=xenbr0
 #--image_service=nova.image.local.LocalImageService
 
-    echo "3-> resetting instances and networks folders"
-    $SUDO_CMD rm -rf $NOVA_DIR/instances
-    mkdir -p $NOVA_DIR/instances
-    $SUDO_CMD rm -rf $NOVA_DIR/networks
-    mkdir -p $NOVA_DIR/networks
-
     echo "3-> cleaning vlans"
     $SUDO_CMD $NOVA_DIR/tools/clean-vlans
 
@@ -161,11 +157,11 @@ EOF"
     $SUDO_CMD glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
 
 
-    if [ ! -d "$NOVA_DIR/images" ]; then
+    if [[ ! -d "$NOVA_DIR/images" ]]; then
         ln -s $OPENSTACK/images $NOVA_DIR/images
     fi
 
-    if [ "$TEST" == 1 ]; then
+    if [[ "$TEST" == 1 ]]; then
         echo "3-> running tests"
         cd $NOVA_DIR
         python $NOVA_DIR/run_tests.py
@@ -175,7 +171,7 @@ EOF"
     # only create these if nova.zip doesn't exist
     # nova.zip is removed in the teardown phase
     # allows rerunning without issue and without teardown
-    if [ ! -f nova.zip ]; then
+    if [[ ! -f nova.zip ]]; then
         echo "3-> creating user, project, env_variables, and network"
         cd $NOVA_DIR/nova/CA
 
@@ -224,7 +220,7 @@ function clean {
 #    $SUDO_CMD killall /usr/bin/python
     $SUDO_CMD glance-control all stop
     $SUDO_CMD rm -f *.pid*
-    $SUDO_CMD rm -f n3va.[0-9]*
+    $SUDO_CMD rm -f n3va.[[0-9]]*
 }
 
 function teardown {
@@ -232,7 +228,7 @@ function teardown {
     rm -f $CONFDIR/nova.zip
 
     echo "3-> resetting database"
-    if [ "$USE_MYSQL" == 1 ]; then
+    if [[ "$USE_MYSQL" == 1 ]]; then
         mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE nova;'
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE nova;'
 #        mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE glance;'
@@ -270,7 +266,7 @@ case "$1" in
 
     setup)
         setup $@
-        branch "lp:glance"
+        branch "" "lp:glance"
         setup_glance $@
         ;;
 
