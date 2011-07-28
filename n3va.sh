@@ -330,6 +330,13 @@ case "$1" in
         setup_nova
         ;;
 
+    setup-glance)
+        setup_glance
+        ;;
+
+    setup-nova)
+        setup_nova
+        ;;
     run)
         run $@
         ;;
