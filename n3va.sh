@@ -143,12 +143,15 @@ function install {
 
 function setup {
   if [[ ! -d "$OPENSTACK" ]]; then
+      echo "3-> mkdir $OPENSTACK"
       mkdir -p $OPENSTACK
   fi
   if [[ ! -d "$CONFDIR" ]]; then
+      echo "3-> mkdir $CONFDIR"
       mkdir -p $CONFDIR
   fi
   if [[ ! -d "$OPENBIN" ]]; then
+      echo "3-> mkdir $OPENBIN"
       mkdir -p $OPENBIN
   fi
 }
