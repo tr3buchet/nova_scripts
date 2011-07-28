@@ -41,8 +41,7 @@ function branch {
         fi
         if [[ $SOURCE_BRANCH == "lp:glance" ]]; then
             DEST_DIR=glance-trunk
-        fi
-        if [[ -n "$3" ]]; then
+        elif [[ -n "$3" ]]; then
             DEST_DIR=$3
         else
             DEST_DIR=$(echo $2 | cut -d: -f2)
