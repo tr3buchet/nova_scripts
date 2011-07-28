@@ -84,13 +84,13 @@ function install {
 }
 
 function setup {
-  if [! -d "$OPENSTACK" ]; then
+  if [ ! -d "$OPENSTACK" ]; then
       mkdir -p $OPENSTACK
   fi
-  if [! -d "$CONFDIR" ]; then
+  if [ ! -d "$CONFDIR" ]; then
       mkdir -p $CONFDIR
   fi
-  if [! -d "$OPENBIN" ]; then
+  if [i ! -d "$OPENBIN" ]; then
       mkdir -p $OPENBIN
   fi
 }
@@ -270,6 +270,7 @@ case "$1" in
 
     setup)
         setup $@
+        branch lp:glance
         setup_glance $@
         ;;
 
