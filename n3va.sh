@@ -5,7 +5,7 @@ CONFDIR=$OPENSTACK/conf
 
 # $SUDO will blindly be prepended onto commands
 SUDO_CMD=''
-#SUDO_CMD='sudo'
+#SUDO_CMD='$SUDO_CMD'
 
 CMD=$1
 SOURCE_BRANCH=lp:nova
@@ -46,7 +46,7 @@ if [ "$CMD" == "run" ]; then
     mkdir -p $CONFDIR
   fi
   echo "3-> writing $CONFDIR/nova.conf"
-  sudo sh -c "cat > $CONFDIR/nova.conf << EOF
+  $SUDO_CMD sh -c "cat > $CONFDIR/nova.conf << EOF
 --verbose
 --nodaemon
 --sql_connection=$SQL_CONN/nova
@@ -78,9 +78,9 @@ fi
 
 # You should only have to run this once
 if [ "$CMD" == "install" ]; then
-    sudo apt-get install -y bzr mysql-server build-essential rabbitmq-server euca2ools unzip
-    sudo apt-get install -y python-twisted python-gflags python-carrot python-eventlet python-ipy python-sqlalchemy python-mysqldb python-webob python-redis python-mox pyth
-    sudo apt-get install -y python-m2crypto python-netaddr python-pastedeploy python-migrate python-tempita iptables
+    $SUDO_CMD apt-get install -y bzr mysql-server build-essential rabbitmq-server euca2ools unzip
+    $SUDO_CMD apt-get install -y python-twisted python-gflags python-carrot python-eventlet python-ipy python-sqlalchemy python-mysqldb python-webob python-redis python-mox pyth
+    $SUDO_CMD apt-get install -y python-m2crypto python-netaddr python-pastedeploy python-migrate python-tempita iptables
 
     if [ "$USE_MYSQL" == 1 ]; then
         mysqladmin -u root -p $MYSQL_PASS password $MYSQL_PASS
@@ -91,19 +91,19 @@ fi
 
 if [ "$CMD" == "run" ]; then
     echo "3-> resetting instances and networks folders"
-    sudo rm -rf $NOVA_DIR/instances
+    $SUDO_CMD rm -rf $NOVA_DIR/instances
     mkdir -p $NOVA_DIR/instances
-    sudo rm -rf $NOVA_DIR/networks
+    $SUDO_CMD rm -rf $NOVA_DIR/networks
     mkdir -p $NOVA_DIR/networks
 
     echo "3-> cleaning vlans"
-    sudo $NOVA_DIR/tools/clean-vlans
+    $SUDO_CMD $NOVA_DIR/tools/clean-vlans
 
 #    echo "3-> making sure glance is up to date"
 #    cd $GLANCE_DIR
 #    bzr pull
-#    sudo python setup.py install
-    sudo glance-manage --sql-connection=$SQL_CONN/glance db_sync
+#    $SUDO_CMD python setup.py install
+    $SUDO_CMD glance-manage --config-file=$CONFDIR/glance-registry.conf --sql-connection=$SQL_CONN/glance db_sync
 
 
     if [ ! -d "$NOVA_DIR/images" ]; then
@@ -124,7 +124,7 @@ if [ "$CMD" == "run" ]; then
         echo "3-> creating user, project, env_variables, and network"
         cd $NOVA_DIR/nova/CA
 
-        sudo ./genrootca.sh
+        $SUDO_CMD ./genrootca.sh
         cd $OPENSTACK
         echo db sync
         $NOVA_DIR/bin/nova-manage --flagfile=$CONFDIR/nova.conf db sync
@@ -172,10 +172,10 @@ if [ "$CMD" == "clean" ]; then
     echo "3-> kill screen (if running)"
     screen -S nova -X quit
     echo "3-> removing .pids"
-#    sudo killall /usr/bin/python
-    sudo glance-control all stop
-    sudo rm -f *.pid*
-    sudo rm -f n3va.[0-9]*
+#    $SUDO_CMD killall /usr/bin/python
+    $SUDO_CMD glance-control all stop
+    $SUDO_CMD rm -f *.pid*
+    $SUDO_CMD rm -f n3va.[0-9]*
 fi
 
 if [ "$CMD" == "teardown" ]; then
