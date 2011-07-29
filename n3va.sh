@@ -287,6 +287,9 @@ function teardown {
         fi
     else
         rm -f $OPENSTACK/nova.sqlite
+        if [[ $RESET_GLANCE -eq 1 ]]; then
+            rm -f $OPENSTACK/glance.sqlite
+        fi
     fi
 
     if [[ $RESET_GLANCE -eq 1 ]]; then
