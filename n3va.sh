@@ -18,6 +18,7 @@ TEST=${TEST:-0}
 LIBVIRT_TYPE=${LIBVIRT_TYPE:-qemu}
 #NET_MAN=${NET_MAN:-VlanManager}
 NET_MAN=${NET_MAN:-FlatManager}
+RESET_GLANCE=${RESET_GLANCE:-0}
 
 if [[ "$USE_MYSQL" == 1 ]]; then
     SQL_CONN=mysql://root:$MYSQL_PASS@localhost
@@ -198,8 +199,7 @@ function run {
 --xenapi_connection_password=$XS_PASS
 --rescue-timeout=86400
 --allow_admin_api=true
---xenapi_inject_image=false
---xenapi_remap_vbd_dev=true
+--xenapi_remap_vbd_dev=false
 --flat_injected=false
 --ca_path=$NOVA_DIR/nova/CA
 EOF"
@@ -280,10 +280,17 @@ function teardown {
     if [[ "$USE_MYSQL" == 1 ]]; then
         mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE nova;'
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE nova;'
-        mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE glance;'
-        mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE glance;'
+        if [[ $RESET_GLANCE -eq 1 ]] then
+            mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE glance;'
+            mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE glance;'
+        fi
     else
-        rm -f $DIR/nova.sqlite
+        rm -f $OPENSTACK/nova.sqlite
+    fi
+
+    if [[ $RESET_GLANCE -eq 1 ]] then
+        echo "3-> deleteting glance images"
+        rm $CONFDIR/images/*
     fi
 
     echo "3-> destroying xenserver instances"
