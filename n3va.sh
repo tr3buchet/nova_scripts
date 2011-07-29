@@ -280,7 +280,7 @@ function teardown {
     if [[ "$USE_MYSQL" == 1 ]]; then
         mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE nova;'
         mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE nova;'
-        if [[ $RESET_GLANCE -eq 1 ]] then
+        if [[ $RESET_GLANCE -eq 1 ]]; then
             mysql -uroot -p$MYSQL_PASS -e 'DROP DATABASE glance;'
             mysql -uroot -p$MYSQL_PASS -e 'CREATE DATABASE glance;'
         fi
@@ -288,7 +288,7 @@ function teardown {
         rm -f $OPENSTACK/nova.sqlite
     fi
 
-    if [[ $RESET_GLANCE -eq 1 ]] then
+    if [[ $RESET_GLANCE -eq 1 ]]; then
         echo "3-> deleteting glance images"
         rm $CONFDIR/images/*
     fi
