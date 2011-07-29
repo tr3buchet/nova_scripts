@@ -161,6 +161,7 @@ function setup_glance {
   # pattern
   sed -i "s:/var/log/glance:$CONFDIR/logs:" $CONFDIR/glance*.conf
   sed -i "s:/var/lib/glance:${CONFDIR}:" $CONFDIR/glance*.conf
+  sed -i "s|sqlite:///glance.sqlite|$SQL_CONN/glance|" $CONFDIR/glance*.conf
 
   OLD_PWD=$(pwd)
   cd $GLANCE_DIR
